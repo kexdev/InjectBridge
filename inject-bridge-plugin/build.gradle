@@ -1,0 +1,28 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'com.novoda.bintray-release'
+
+dependencies {
+    implementation gradleApi()
+    implementation localGroovy()
+
+    implementation 'com.android.tools.build:gradle:3.5.0'
+}
+
+repositories {
+    mavenCentral()
+}
+
+publish {
+    bintrayUser = rootProject.ext.bintrayUser
+    bintrayKey = rootProject.ext.bintrayKey
+    repoName = rootProject.ext.repoName
+    userOrg = rootProject.ext.userOrg
+    groupId = rootProject.ext.groupId
+    publishVersion = rootProject.ext.publishVersion
+    website = rootProject.ext.website
+    artifactId = 'inject-bridge-plugin'
+    desc = 'Inject Bridge plugin.'
+    dryRun = false
+    override = true
+}

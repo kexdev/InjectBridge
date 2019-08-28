@@ -1,0 +1,28 @@
+apply plugin: 'java-library'
+apply plugin: 'maven'
+apply plugin: 'com.novoda.bintray-release'
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+repositories {
+    mavenCentral()
+}
+
+publish {
+    bintrayUser = rootProject.ext.bintrayUser
+    bintrayKey = rootProject.ext.bintrayKey
+    repoName = rootProject.ext.repoName
+    userOrg = rootProject.ext.userOrg
+    groupId = rootProject.ext.groupId
+    publishVersion = rootProject.ext.publishVersion
+    website = rootProject.ext.website
+    artifactId = 'inject-bridge-core'
+    desc = 'The library of Inject Bridge plugin.'
+    dryRun = false
+    override = true
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"

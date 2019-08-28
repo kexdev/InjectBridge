@@ -1,0 +1,2 @@
+include ':inject-bridge-core', ':inject-bridge-plugin', ':app'
+rootProject.name='InjectBridge'
