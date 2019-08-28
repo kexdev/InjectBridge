@@ -9,7 +9,7 @@ buildscript {
         userOrg = 'kexdev'
         groupId = 'com.kexdev.andlibs'
         website = 'https://github.com/kexdev'
-        publishVersion = '1.0.0'
+        publishVersion = '1.0.1'
     }
 
     repositories {
