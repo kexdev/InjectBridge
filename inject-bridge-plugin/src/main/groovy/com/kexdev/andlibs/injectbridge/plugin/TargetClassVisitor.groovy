@@ -35,7 +35,7 @@ class TargetClassVisitor extends ClassVisitor {
             return methodVisitor
         }
 
-        targetMethodVisitor.set(methodVisitor, className, name, desc)
+        targetMethodVisitor.set(methodVisitor, className, name, desc, access)
         return targetMethodVisitor
     }
 

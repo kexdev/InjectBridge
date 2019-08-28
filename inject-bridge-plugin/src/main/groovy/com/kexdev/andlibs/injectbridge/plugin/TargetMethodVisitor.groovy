@@ -13,6 +13,7 @@ class TargetMethodVisitor extends MethodVisitor {
     String className
     String methodName
     String methodDesc
+    int methodAccess
 
     String targetName
     String targetModel
@@ -27,11 +28,12 @@ class TargetMethodVisitor extends MethodVisitor {
         super(Opcodes.ASM6)
     }
 
-    void set(MethodVisitor methodVisitor, String className, String methodName, String desc) {
+    void set(MethodVisitor methodVisitor, String className, String methodName, String desc, int access) {
         this.mv = methodVisitor
         this.className = className
         this.methodName = methodName
         this.methodDesc = desc
+        this.methodAccess = access
     }
 
     void setMethodInjectListener(OnMethodInjectListener listener) {
@@ -151,7 +153,13 @@ class TargetMethodVisitor extends MethodVisitor {
         for (int i = 0; i < types.size(); i++) {
             size += types[i].getSize()
         }
+
         return size
+    }
+
+    private boolean isStaticMethod() {
+        //如果是静态方法
+        return ((methodAccess & Opcodes.ACC_STATIC) != 0)
     }
 
     private void injectBefore(List<InjectClassInfo> classInfoList) {
