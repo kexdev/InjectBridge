@@ -21,4 +21,14 @@ public class SimpleInjectTarget {
         return "default";
     }
 
+    public static void test(Object[] params) {
+        NameInjectBody body = new NameInjectBody();
+        body.execute(params);
+        NameInjectBody body1 = new NameInjectBody();
+        body1.execute(params);
+        NameInjectBody2 body2 = new NameInjectBody2();
+        body2.execute(params);
+//        return body2.execute(params);
+    }
+
 }

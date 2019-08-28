@@ -25,8 +25,7 @@ public class CountInjectBody implements BaseInjectBody {
             e.printStackTrace();
         }
 
-        Log.i("test", "InjectBridge - CountInjectBody");
-        Log.i("test", "count = " + count);
+        Log.i("test", "CountInjectBody count: " + count);
         return count;
     }
 }

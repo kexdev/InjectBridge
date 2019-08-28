@@ -9,8 +9,8 @@ import com.kexdev.andlibs.injectbridge.core.InjectBody;
  * @author zixuan
  * Created by zixuan on 2019/8/28
  */
-@InjectBody(target = "injectName")
-public class NameInjectBody implements BaseInjectBody {
+@InjectBody(target = "injectName2")
+public class NameInjectBody2 implements BaseInjectBody {
     @Override
     public Object execute(Object[] params) {
         String name = null;
@@ -27,7 +27,7 @@ public class NameInjectBody implements BaseInjectBody {
             e.printStackTrace();
         }
 
-        Log.i("test", "NameInjectBody result: " + result);
+        Log.i("test", "NameInjectBody2 result: " + result);
         return result;
     }
 }
