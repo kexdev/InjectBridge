@@ -2,7 +2,7 @@
 
 buildscript {
     ext {
-        // bintray公有库信息
+        // bintray info
         bintrayUser = 'kexdev'
         bintrayKey = '********************************'
         repoName = 'maven'
@@ -15,7 +15,6 @@ buildscript {
     repositories {
         google()
         jcenter()
-        maven { url 'https://dl.bintray.com/kexdev/maven' }
     }
 
     dependencies {
@@ -33,7 +32,6 @@ allprojects {
     repositories {
         google()
         jcenter()
-        maven { url 'https://dl.bintray.com/kexdev/maven' }
     }
 }
 
