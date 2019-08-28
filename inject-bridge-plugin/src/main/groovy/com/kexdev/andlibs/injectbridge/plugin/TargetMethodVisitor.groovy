@@ -15,6 +15,8 @@ class TargetMethodVisitor extends MethodVisitor {
     String methodDesc
     int methodAccess
 
+    boolean isStaticMethod
+
     String targetName
     String targetModel
 
@@ -34,6 +36,7 @@ class TargetMethodVisitor extends MethodVisitor {
         this.methodName = methodName
         this.methodDesc = desc
         this.methodAccess = access
+        isStaticMethod = ((methodAccess & Opcodes.ACC_STATIC) != 0)
     }
 
     void setMethodInjectListener(OnMethodInjectListener listener) {
@@ -87,9 +90,10 @@ class TargetMethodVisitor extends MethodVisitor {
             return
         }
 
-        onInjectListener.onInject()
         Logger.i("[InjectBridge] start inject [inject class: " + className + ", method: " + methodName + ", desc: " + methodDesc
                 + ", targetName: " + targetName + ", targetModel: " + targetModel + "]")
+
+        onInjectListener.onInject()
 
         switch (targetModel) {
             case InjectConfig.MODEL_REPLACE: //替换
@@ -107,7 +111,6 @@ class TargetMethodVisitor extends MethodVisitor {
                 needInject = false
                 mv.visitCode()
         }
-        //super.visitCode()
     }
 
     @Override
@@ -148,22 +151,14 @@ class TargetMethodVisitor extends MethodVisitor {
         currentLocals = 1
     }
 
-    private static int getTypesSize(Type[] types) {
-        int size = 0
-        for (int i = 0; i < types.size(); i++) {
-            size += types[i].getSize()
+    private void injectBefore(List<InjectClassInfo> classInfoList) {
+        int paramCount = Type.getArgumentTypes(methodDesc).size()
+        int paramIndex = 1  //永远使用方法里的第一个参数
+        if (isStaticMethod) {
+            paramCount = paramCount - 1
+            paramIndex = paramIndex - 1
         }
 
-        return size
-    }
-
-    private boolean isStaticMethod() {
-        //如果是静态方法
-        return ((methodAccess & Opcodes.ACC_STATIC) != 0)
-    }
-
-    private void injectBefore(List<InjectClassInfo> classInfoList) {
-        int offset = getTypesSize(Type.getArgumentTypes(methodDesc))
         for (int i = 0; i < classInfoList.size(); i++) {
             InjectClassInfo classInfo = classInfoList.get(i)
             currentLocals += 1
@@ -173,10 +168,14 @@ class TargetMethodVisitor extends MethodVisitor {
             mv.visitTypeInsn(Opcodes.NEW, classInfo.className)
             mv.visitInsn(Opcodes.DUP)
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInfo.className, '<init>', '()V', false)
-            mv.visitVarInsn(Opcodes.ASTORE, offset + i + 1)
+            mv.visitVarInsn(Opcodes.ASTORE, paramCount + i + 1)
 
-            mv.visitVarInsn(Opcodes.ALOAD, offset + i + 1)
-            mv.visitVarInsn(Opcodes.ALOAD, offset + i)
+            mv.visitVarInsn(Opcodes.ALOAD, paramCount + i + 1)
+            if (paramCount == 0 && !isStaticMethod) {
+                mv.visitVarInsn(Opcodes.ACONST_NULL)  //target方法无参数时，body的参数传空
+            } else {
+                mv.visitVarInsn(Opcodes.ALOAD, paramIndex)
+            }
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, classInfo.className, 'execute', INJECT_TARGET_DESC_BYTECODE, false)
 
             //只做pop不做return，因为before之后还要调用原逻辑，原逻辑还执行返回方法
@@ -186,7 +185,12 @@ class TargetMethodVisitor extends MethodVisitor {
 
     private void injectAfter(List<InjectClassInfo> classInfoList) {
         String returnType = Type.getReturnType(methodDesc)
-        int offset = getTypesSize(Type.getArgumentTypes(methodDesc))
+        int paramCount = Type.getArgumentTypes(methodDesc).size()
+        int paramIndex = 1  //永远使用方法里的第一个参数
+        if (isStaticMethod) {
+            paramCount = paramCount - 1
+            paramIndex = paramIndex - 1
+        }
         for (int i = 0; i < classInfoList.size(); i++) {
             InjectClassInfo classInfo = classInfoList.get(i)
             currentLocals += 1
@@ -196,10 +200,14 @@ class TargetMethodVisitor extends MethodVisitor {
             mv.visitTypeInsn(Opcodes.NEW, classInfo.className)
             mv.visitInsn(Opcodes.DUP)
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInfo.className, '<init>', '()V', false)
-            mv.visitVarInsn(Opcodes.ASTORE, offset + i + 1)
+            mv.visitVarInsn(Opcodes.ASTORE, paramCount + i + 1)
 
-            mv.visitVarInsn(Opcodes.ALOAD, offset + i + 1)
-            mv.visitVarInsn(Opcodes.ALOAD, offset + i)
+            mv.visitVarInsn(Opcodes.ALOAD, paramCount + i + 1)
+            if (paramCount == 0 && !isStaticMethod) {
+                mv.visitVarInsn(Opcodes.ACONST_NULL)  //target方法无参数时，body的参数传空
+            } else {
+                mv.visitVarInsn(Opcodes.ALOAD, paramIndex)
+            }
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, classInfo.className, 'execute', INJECT_TARGET_DESC_BYTECODE, false)
 
             //只做pop不做return，因为是在处理返回时处理的，最终还执行了返回方法
@@ -217,22 +225,31 @@ class TargetMethodVisitor extends MethodVisitor {
 
     private void injectReplace(List<InjectClassInfo> classInfoList) {
         String returnType = Type.getReturnType(methodDesc)
-        int offset = getTypesSize(Type.getArgumentTypes(methodDesc))
+        int paramCount = Type.getArgumentTypes(methodDesc).size()
+        int paramIndex = 1  //永远使用方法里的第一个参数
+        if (isStaticMethod) {
+            paramCount = paramCount - 1
+            paramIndex = paramIndex - 1
+        }
         for (int i = 0; i < classInfoList.size(); i++) {
             InjectClassInfo classInfo = classInfoList.get(i)
             currentLocals += 1
-            Logger.i("[InjectBridge] injectReplace " + classInfo.toString())
 
-            //开始注入
+            //执行默认构造函数
             mv.visitTypeInsn(Opcodes.NEW, classInfo.className)
             mv.visitInsn(Opcodes.DUP)
             mv.visitMethodInsn(Opcodes.INVOKESPECIAL, classInfo.className, '<init>', '()V', false)
-            mv.visitVarInsn(Opcodes.ASTORE, offset + i + 1)
-
-            mv.visitVarInsn(Opcodes.ALOAD, offset + i + 1)
-            mv.visitVarInsn(Opcodes.ALOAD, offset + i)
+            mv.visitVarInsn(Opcodes.ASTORE, paramCount + i + 1)
+            //执行execute方法
+            mv.visitVarInsn(Opcodes.ALOAD, paramCount + i + 1)
+            if (paramCount == 0 && !isStaticMethod) {
+                mv.visitVarInsn(Opcodes.ACONST_NULL)  //target方法无参数时，body的参数传空
+            } else {
+                mv.visitVarInsn(Opcodes.ALOAD, paramIndex)
+            }
             mv.visitMethodInsn(Opcodes.INVOKEVIRTUAL, classInfo.className, 'execute', INJECT_TARGET_DESC_BYTECODE, false)
 
+            Logger.i("[InjectBridge] injectReplace " + classInfo.toString())
             if (returnType == "V") {
                 mv.visitInsn(Opcodes.RETURN)
             } else {
