@@ -23,6 +23,12 @@ android {
     }
 }
 
+injectBridge {
+    enabled = true
+    showLog = true
+    ignorePackages = ['android', 'com/google', 'java']
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
