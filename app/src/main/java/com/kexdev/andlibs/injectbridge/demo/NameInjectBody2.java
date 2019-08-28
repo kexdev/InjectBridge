@@ -9,7 +9,7 @@ import com.kexdev.andlibs.injectbridge.core.InjectBody;
  * @author zixuan
  * Created by zixuan on 2019/8/28
  */
-@InjectBody(target = "injectName2")
+@InjectBody(target = "injectName")
 public class NameInjectBody2 implements BaseInjectBody {
     @Override
     public Object execute(Object[] params) {
@@ -21,7 +21,7 @@ public class NameInjectBody2 implements BaseInjectBody {
             if (params != null && params.length > 0) {
                 name = (String) params[0];
                 age = (int) params[1];
-                result = "name = " + name + ", age = " + age;
+                result = "name2 = " + name + ", age2 = " + age;
             }
         } catch (Exception e) {
             e.printStackTrace();
