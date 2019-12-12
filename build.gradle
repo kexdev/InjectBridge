@@ -18,7 +18,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.2'
+        classpath 'com.android.tools.build:gradle:3.5.3'
         classpath 'com.novoda:bintray-release:0.9.1'
         // InjectBridge
         classpath 'com.kexdev.andlibs:inject-bridge-plugin:1.0.1'
